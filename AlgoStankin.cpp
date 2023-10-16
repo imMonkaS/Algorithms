@@ -14,13 +14,6 @@ void readNumbers(int arr[], int N, string filename) {
     }
 }
 
-void print(int arr[], int N) {
-    for (int i = 0; i < N; i++) {
-        cout << arr[i] << " ";
-    }
-    cout << endl;
-}
-
 void print(int arr[], int N, string filename) {
     ofstream file(filename);
     for (int i = 0; i < N; i++) {
