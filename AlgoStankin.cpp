@@ -3,26 +3,13 @@
 #include <fstream>
 #include <string>
 
-#include <chrono>
-
 using namespace std;
-
-void readNumbers(int arr[], int N, string filename) {
-    ifstream file(filename);
-    for (int i = 0; i < N; i++) {
-        file >> arr[i];
-    }
-}
 
 void print(int arr[], int N) {
     for (int i = 0; i < N; i++) {
         cout << arr[i] << " ";
     }
     cout << endl;
-}
-
-void print(int arr[], int N, string filename) {
-
 }
 
 int log2RoundUp(int N) {
@@ -40,57 +27,51 @@ bool checkArray(int arr[], int N) {
     return true;
 }
 
-void BatchersMergeSort(int arr[], int N) {
-    int t = log2RoundUp(N);
-    int p0 = pow(2, t - 1);
-    int p = p0;
-
-    while (p > 0) {
-        int q = p0, r = 0, d = p;
-
-        while (r == 0 || q != p) {
-            if (r != 0)
-            {
-                d = q - p;
-                q >>= 1;
-            }
-
-            for (int i = 0; i < N - d; i++) {
-                if (((i & p) == r) && arr[i] > arr[i + d]) {
-                    swap(arr[i], arr[i + d]);
-                }
-            }
-
-            r = p;
-        }
-
-        p = p / 2;
+void readNumbers(int arr[], int N, string filename) {
+    ifstream file(filename);
+    for (int i = 0; i < N; i++) {
+        file >> arr[i];
     }
 }
 
 int main()
 {
+    //int R[12] = { 45, 7878, 456, 432, 657, 345, 657, 768, 234, 23, 0, 3 };
+    int R[500];
     const int N = 500;
-    int R[N];
-    string filename;
-    cin >> filename;
+    readNumbers(R, N, "d500.txt");
 
-    readNumbers(R, N, filename);
+    int t = log2RoundUp(N);
+    int p = pow(2, t - 1);
 
-    auto start = chrono::steady_clock::now();
-    BatchersMergeSort(R, N);
-    auto end = chrono::steady_clock::now();
-    long duration = chrono::duration_cast<chrono::microseconds>(end - start).count();
-    cout << endl;
+    while (p > 0) {
+        int q = pow(2, t - 1);
+        int r = 0;
+        int d = p;
 
-    print(R, N, "sortedArray.txt");
+        do {
+            for (int i = 0; i < N - d; i++) {
+                if (((i & p) == r) && R[i] > R[i + d]) {
+                    swap(R[i], R[i + d]);
+                }
+            }
+            d = q - p;
+            q = q / 2;
+            r = p;
+        } while (q > p);
+
+        p = p / 2;
+    }
+
+    print(R, N);
     if (checkArray(R, N)) {
-        cout << "Numbers sorted correctly" << endl;
+        //cout << "Numbers sorted correctly";
+        cout << "Sorted";
     }
     else {
-        cout << "Numbers sorted incorrectly" << endl;
+        //cout << "Numbers sorted incorrectly"
+        cout << "Not sorted";
     }
-    cout << "Time: " << duration << " microseconds" << ", " << duration / 1000000.0 << " seconds" << endl;
 
     return 0;
 }
