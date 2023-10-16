@@ -3,13 +3,29 @@
 #include <fstream>
 #include <string>
 
+#include <chrono>
+
 using namespace std;
+
+void readNumbers(int arr[], int N, string filename) {
+    ifstream file(filename);
+    for (int i = 0; i < N; i++) {
+        file >> arr[i];
+    }
+}
 
 void print(int arr[], int N) {
     for (int i = 0; i < N; i++) {
         cout << arr[i] << " ";
     }
     cout << endl;
+}
+
+void print(int arr[], int N, string filename) {
+    ofstream file(filename);
+    for (int i = 0; i < N; i++) {
+        file << arr[i] << " ";
+    }
 }
 
 int log2RoundUp(int N) {
@@ -27,51 +43,63 @@ bool checkArray(int arr[], int N) {
     return true;
 }
 
-void readNumbers(int arr[], int N, string filename) {
-    ifstream file(filename);
-    for (int i = 0; i < N; i++) {
-        file >> arr[i];
+void BatchersMergeSort(int arr[], int N) {
+    int t = log2RoundUp(N);
+    int p0 = pow(2, t - 1);
+    int p = p0;
+
+    while (p > 0) {
+        int q = p0, r = 0, d = p;
+
+        while (r == 0 || q != p) {
+            if (r != 0)
+            {
+                d = q - p;
+                q = q / 2;
+            }
+
+            for (int i = 0; i < N - d; i++) {
+                if (((i & p) == r) && arr[i] > arr[i + d]) {
+                    swap(arr[i], arr[i + d]);
+                }
+            }
+
+            r = p;
+        }
+
+        p = p / 2;
     }
 }
 
 int main()
 {
-    //int R[12] = { 45, 7878, 456, 432, 657, 345, 657, 768, 234, 23, 0, 3 };
-    int R[500];
-    const int N = 500;
-    readNumbers(R, N, "d500.txt");
+    setlocale(LC_ALL, "Russian");
 
-    int t = log2RoundUp(N);
-    int p = pow(2, t - 1);
+    const int SIZE = 5000;
+    int R[SIZE];
+    int N;
+    cout << "Введите количество цифр в файле:" << endl;
+    cin >> N;
+    cout << "Введите название файла:" << endl;
+    string filename;
+    cin >> filename;
 
-    while (p > 0) {
-        int q = pow(2, t - 1);
-        int r = 0;
-        int d = p;
+    readNumbers(R, N, filename);
 
-        do {
-            for (int i = 0; i < N - d; i++) {
-                if (((i & p) == r) && R[i] > R[i + d]) {
-                    swap(R[i], R[i + d]);
-                }
-            }
-            d = q - p;
-            q = q / 2;
-            r = p;
-        } while (q > p);
+    auto start = chrono::steady_clock::now();
+    BatchersMergeSort(R, N);
+    auto end = chrono::steady_clock::now();
+    long duration = chrono::duration_cast<chrono::microseconds>(end - start).count();
+    cout << endl;
 
-        p = p / 2;
-    }
-
-    print(R, N);
+    print(R, N, "sortedArray.txt");
     if (checkArray(R, N)) {
-        //cout << "Numbers sorted correctly";
-        cout << "Sorted";
+        cout << "Массив отсортирован" << endl;
     }
     else {
-        //cout << "Numbers sorted incorrectly"
-        cout << "Not sorted";
+        cout << "Массив не отсортирован" << endl;
     }
+    cout << "Время выполнения: " << duration / 1000.0 << " мсек" << endl;
 
     return 0;
 }
